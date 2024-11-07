@@ -1,6 +1,6 @@
-const asyncHandler = (func) = async (req, res, next) => {
+const asyncHandler = (func) => async (req, res, next) => {
     try {
-        const result = await func(res, res, next);
+        const result = await func(req, res, next);
         return result;
     } catch (error) {
         return res.status(error.code || 500).json({
@@ -10,4 +10,4 @@ const asyncHandler = (func) = async (req, res, next) => {
     }
 }
 
-export {asyncHandler};
+export { asyncHandler };
