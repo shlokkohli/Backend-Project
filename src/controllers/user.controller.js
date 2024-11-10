@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { User } from "../models/user/model.js"
+import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
@@ -8,26 +8,25 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // Step 1: Get user details from frontend
   const { fullname, email, username, password } = req.body;
-  console.log("Email: ", email);
-  
+
 
   // Step 2: Check if any of the fields are empty or not
   if(fullname === ""){
     throw new ApiError(400, "All fields are required");
   }
   if(email == ""){
-    throw new Error(400, "All fields are required"); 
+    throw new ApiError(400, "All fields are required"); 
   }
   if(username == ""){
-    throw new Error(400, "All fields are required");
+    throw new ApiError(400, "All fields are required");
   }
   if(password == ""){
-    throw new Error(400, "All fields are required");
+    throw new ApiError(400, "All fields are required");
   }
 
 
   // Step 3: Checking if there is any duplicate user or not using the username and email
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ username }, { email }]
   })
 
@@ -44,7 +43,12 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.files?.avatar[0]?.path;
 
   // local path for cover Image
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  let coverImageLocalPath;
+  if(req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0){
+      coverImageLocalPath = req.files.coverImage.path;
+    }
 
   if(!avatarLocalPath){
     throw new ApiError(400, "Avatar file is required")
@@ -70,7 +74,7 @@ const registerUser = asyncHandler(async (req, res) => {
     username: username.toLowerCase()
   })
 
-  const createdUser = await user.findById(user._id).select("-password -refreshToken")
+  const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
   if(!createdUser){
     throw new ApiError(500, "Something went wrong while registering the user")
