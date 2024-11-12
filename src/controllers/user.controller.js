@@ -102,7 +102,6 @@ const registerUser = asyncHandler(async (req, res) => {
     new ApiResponse(200, createdUser, "User registered Successfully")
   )
 
-
 });
 
 const loginUser = asyncHandler(async (req,res) => {
@@ -110,14 +109,13 @@ const loginUser = asyncHandler(async (req,res) => {
   // Step 1: Take the user data
   const {email, username, password} = req.body;
 
-  if( !(username || email) ){
-    throw new ApiError(400, "username or email is required")
+  // check if there is email or not
+  if (!email) {
+    throw new ApiError(400, "Email is required");
   }
 
   // Step 2: Check that username or email in the db for login
-  const user = await User.findOne({
-    $or: [{username}, {email}]
-  })
+  const user = await User.findOne( {email} )
 
   if(!user){
     throw new ApiError(404, "User does not exist")
@@ -171,7 +169,7 @@ const logoutUser = asyncHandler(async (req,res) => {
 
   return res
   .status(200)
-  .clearCookie("acessToken", options)
+  .clearCookie("accessToken", options)
   .clearCookie("refreshToken", options)
   .json(new ApiResponse(200, {}, "User logged Out"))
 
