@@ -57,14 +57,14 @@ const registerUser = asyncHandler(async (req, res) => {
   // req.files is given by multer, this gives a detailed brief about the uploaded file such as file name, path, size etc
   // we are checking that in the all the files, if there is something named as avatar, if YES then =>
   // then select the filepath from of that avatar (if it is available)
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req.files?.avatar?.[0]?.path;
 
   // local path for cover Image
   let coverImageLocalPath;
   if(req.files &&
     Array.isArray(req.files.coverImage) &&
     req.files.coverImage.length > 0){
-      coverImageLocalPath = req.files.coverImage.path;
+      coverImageLocalPath = req.files.coverImage[0].path;
     }
 
   if(!avatarLocalPath){
@@ -110,7 +110,7 @@ const loginUser = asyncHandler(async (req,res) => {
   // Step 1: Take the user data
   const {email, username, password} = req.body;
 
-  if(!username || !email){
+  if( !(username || email) ){
     throw new ApiError(400, "username or email is required")
   }
 
